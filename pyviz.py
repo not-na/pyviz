@@ -35,12 +35,12 @@ FIELDOFVIEW = 65.0
 MOVE_SPEED = 10
 VERT_SPEED = 0.15
 
-MIN_X = -20
-MAX_X = 20
+MIN_X = -10
+MAX_X = 10
 RES_X = 1
 
-MIN_Z = -20
-MAX_Z = 20
+MIN_Z = -10
+MAX_Z = 10
 RES_Z = 1
 
 COLOR_MIN = 0
@@ -476,6 +476,6 @@ class MainWindow(pyglet.window.Window):
         x, y, z = self.position
         glTranslatef(-x, -y, -z)
 
-window = MainWindow(caption="Textured Cube Test",resizable=True,vsync=True)
+window = MainWindow(caption="PyViz",resizable=True,vsync=True)
 
 pyglet.app.run()
