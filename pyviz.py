@@ -35,13 +35,15 @@ FIELDOFVIEW = 65.0
 MOVE_SPEED = 10
 VERT_SPEED = 0.15
 
+RES = 1
+
 MIN_X = -10
 MAX_X = 10
-RES_X = 1
+RES_X = RES
 
 MIN_Z = -10
 MAX_Z = 10
-RES_Z = 1
+RES_Z = RES
 
 COLOR_MIN = 0
 COLOR_MAX = 100
@@ -110,6 +112,16 @@ class GraphView(object):
         self.win = win
         self.batch2d = pyglet.graphics.Batch()
         self.batch3d = pyglet.graphics.Batch()
+        self.coordHelper = self.batch3d.add(6,GL_LINES,None,
+            ("v3f/static",[0,0,0, 10,0,0,
+                           0,0,0, 0,10,0,
+                           0,0,0, 0,0,10,
+                           ]),
+            ("c3B/static",[255,0,0, 255,0,0,
+                           0,255,0, 0,255,0,
+                           0,0,255, 0,0,255,
+                           ]),
+            )
         self.text = pyglet.text.Label("", font_name='Arial', font_size=18,
             x=2, y=20, anchor_x='left', anchor_y='center',
             color=(0, 0, 0, 255))
@@ -162,37 +174,54 @@ class GraphView(object):
             else:
                 p = (height-COLOR_MIN)/(COLOR_MAX-COLOR_MIN)
                 return [p*255,255-(p*255),0,255]
-        for x in xrange(MIN_X,MAX_X,RES_X):
-            for z in xrange(MIN_Z,MAX_Z,RES_Z):
-                if self.arr[x][z]==None:
-                    self.arr[x][z]=-1.
+        def vx(c):
+            if c==0:
+                return 0.
+            elif c>0:
+                return float(c*RES_X)
+            elif c<0:
+                return float(c*RES_X)
+        def vz(c):
+            if c==0:
+                return 0.
+            elif c>0:
+                return float(c*RES_Z)
+            elif c<0:
+                return float(c*RES_Z)
+        
+        for cx in xrange(MIN_X,MAX_X,RES_X):
+            for cz in xrange(MIN_Z,MAX_Z,RES_Z):
+                x,z = cx,cz
+                if self.arr[cx][cz]==None:
+                    self.arr[cx][cz]=-1.
                     invis = True
                 else:
                     invis = False
-                b = [x,self.arr[x][z],z]
+                b = [vx(x),self.arr[x][z],vz(z)]
                 v.extend(b)
                 c.extend(color(b[1]))
                 xe = True if x+RES_X<MAX_X else False
                 ze = True if z+RES_Z<MAX_Z else False
                 if xe:
-                    v.extend([x+RES_X,self.arr[x+RES_X][z],z])
+                    v.extend([vx(x+1),self.arr[x+1][z],vz(z)])
                     c.extend(color(self.arr[x+RES_X][z]))
                 else:
                     v.extend(b)
                     c.extend(color(b[1]))
                 if xe and ze:
-                    v.extend([x+RES_X,self.arr[x+RES_X][z+RES_Z],z+RES_Z])
-                    c.extend(color(self.arr[x+RES_X][z+RES_Z]))
+                    v.extend([vx(x+1),self.arr[x+1][z+1],vz(z+1)])
+                    c.extend(color(self.arr[x+1][z+1]))
                 else:
                     v.extend(b)
                     c.extend(color(b[1]))
                 if ze:
-                    v.extend([x,self.arr[x][z+RES_Z],z+RES_Z])
-                    c.extend(color(self.arr[x][z+RES_Z]))
+                    v.extend([vx(x),self.arr[x][z+1],vz(z+1)])
+                    c.extend(color(self.arr[x][z+1]))
                 else:
                     v.extend(b)
                     c.extend(color(b[1]))
-        #print(len(self.mesh.vertices),len(v))
+        print(len(v))
+        #print(v)
         self.mesh.vertices = v
         self.mesh.colors = c
 
